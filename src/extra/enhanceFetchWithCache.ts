@@ -1,9 +1,8 @@
 // ### Extra: 1. Add HTTP caching
 
-import stringify from 'fast-json-stable-stringify'
+import { FFetchResponse } from './shared'
 import { addMilliseconds, differenceInMilliseconds } from 'date-fns'
-import { FFetchResponse } from './shared';
-
+import stringify from 'fast-json-stable-stringify'
 
 const _cache: Record<string, { cachedTime: Date; cachedPromisePointerRes: any }> = {}
 
@@ -22,41 +21,43 @@ const isCacheValid = (cacheKey: string) => {
   return diff > 0
 }
 
-export const withCacheFetch = (
-  localFetch: typeof fetch, 
-  extra?: {
-    useCache?: boolean
-    cacheTimeout?: number
-  }
-) => async <Data>(
-  url: Parameters<typeof fetch>[0],
-  init?: Parameters<typeof fetch>[1] | undefined,
-) => {
-  // turn on HTTP cache by default only for all GET Requests
-  const isGetRequest = (init?.method ?? 'GET').toLocaleLowerCase() === 'get'
-
-  const useCache = extra?.useCache === undefined && isGetRequest ? true : (extra?.useCache ?? false)
-
-  // redundant calculation of cache key for non-cached data
-  const cacheKey = stringify([url, init?.method, init?.body])
-
-  if (useCache && isCacheValid(cacheKey)) {
-    // make clone only for the non-first request
-    // make uniq response clone for each user request
-    return _cache[cacheKey].cachedPromisePointerRes.then(r => r.clone()) as Promise<FFetchResponse<Data>>
-  }
-
-  const responsePromise = localFetch(url, init) as Promise<FFetchResponse<Data>>
-
-  if (useCache) {
-    _cache[cacheKey] = {
-      cachedTime: new Date(),
-      // save pointer to unresolved promise into local cache
-      cachedPromisePointerRes: responsePromise
+export const withCacheFetch =
+  (
+    localFetch: typeof fetch,
+    extra?: {
+      useCache?: boolean
+      cacheTimeout?: number
     }
+  ) =>
+  async <Data>(
+    url: Parameters<typeof fetch>[0],
+    init?: Parameters<typeof fetch>[1] | undefined
+  ) => {
+    // turn on HTTP cache by default only for all GET Requests
+    const isGetRequest = (init?.method ?? 'GET').toLocaleLowerCase() === 'get'
+
+    const useCache = extra?.useCache === undefined && isGetRequest ? true : extra?.useCache ?? false
+
+    // redundant calculation of cache key for non-cached data
+    const cacheKey = stringify([url, init?.method, init?.body])
+
+    if (useCache && isCacheValid(cacheKey)) {
+      // make clone only for the non-first request
+      // make uniq response clone for each user request
+      return _cache[cacheKey].cachedPromisePointerRes.then(r => r.clone()) as Promise<
+        FFetchResponse<Data>
+      >
+    }
+
+    const responsePromise = localFetch(url, init) as Promise<FFetchResponse<Data>>
+
+    if (useCache) {
+      _cache[cacheKey] = {
+        cachedTime: new Date(),
+        // save pointer to unresolved promise into local cache
+        cachedPromisePointerRes: responsePromise,
+      }
+    }
+
+    return responsePromise
   }
-
-  return responsePromise
-}
-
-

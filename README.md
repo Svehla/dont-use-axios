@@ -43,8 +43,8 @@ const ffetch = async <Data>(
   url: string,
   init?: Parameters<typeof fetch>[1] | undefined
 ) => {
-	const response = await fetch(url, init) 
-	return response as FFetchResponse<Data>
+  const response = await fetch(url, init) 
+  return response as FFetchResponse<Data>
 }
 
 ```
@@ -67,9 +67,9 @@ class FErrorHTTPLayer extends Error {
 }
 
 const ffetch = async (url, init) => {
-	const response = await fetch(url, init)
-	if (!response.ok) throw new FErrorHTTPLayer(response)
-	return response
+  const response = await fetch(url, init)
+  if (!response.ok) throw new FErrorHTTPLayer(response)
+  return response
 }
 ```
 
@@ -79,19 +79,19 @@ const ffetch = async (url, init) => {
 
 ```ts
 const ffetch = async (url, init, extra) => {
-	const response = await fetch(url, init)
+  const response = await fetch(url, init)
 
-	const isResponseJson = response.headers.get('content-type')?.includes('application/json')
+  const isResponseJson = response.headers.get('content-type')?.includes('application/json')
 
-	const responseToParse = response.clone()
-	const data = await (extra?.okResponseParser
-		? extra.okResponseParser(responseToParse)
-		: isResponseJson
-		? responseToParse.json()
-		: responseToParse.text()
-	)
+  const responseToParse = response.clone()
+  const data = await (extra?.okResponseParser
+    ? extra.okResponseParser(responseToParse)
+    : isResponseJson
+    ? responseToParse.json()
+    : responseToParse.text()
+  )
 
-	return [data, response]
+  return [data, response]
 }
 ```
 
@@ -100,7 +100,7 @@ const ffetch = async (url, init, extra) => {
 
 ```ts
 const ffetch = async (url, init, extra) => {
-	const enhancedInit = {
+  const enhancedInit = {
     ...(extra?.jsonBody 
       ? {
         headers: {
@@ -114,9 +114,9 @@ const ffetch = async (url, init, extra) => {
     ...init,
   }
 
-	const response = await fetch(url, enhancedInit)
+  const response = await fetch(url, enhancedInit)
 
-	return response
+  return response
 }
 ```
 
@@ -125,12 +125,12 @@ const ffetch = async (url, init, extra) => {
 
 ```ts
 const ffetch = async (url, init, extra) => {
-	const enhancedInit = { ...init }
+  const enhancedInit = { ...init }
   if (extra?.basicAuth) {
     enhancedInit.headers['Authorization'] = `Basic ${btoa(extra.basicAuth.username + ":" + extra.basicAuth.password)}`
   }
-	const response = await fetch(url, enhancedInit)
-	return response
+  const response = await fetch(url, enhancedInit)
+  return response
 }
 ```
 
@@ -156,14 +156,14 @@ declare class FFetchResponse<T> extends Response {
 const ffetch = async <Data, ParsedResData = Data>(
   url: string,
   init?: Parameters<typeof fetch>[1] | undefined,
-	extra?: {
+  extra?: {
     okResponseParser?: (arg: FFetchResponse<Data>) => Promise<ParsedResData>
     jsonBody?: Record<any, any>
     basicAuth?: { username: string, password: string } // 
-	}
+  }
 ): Promise<[Data, FFetchResponse<Data>]> => {
 
-	const enhancedInit = { headers: {}, ...init }
+  const enhancedInit = { headers: {}, ...init }
 
   if (extra?.jsonBody) {
     enhancedInit.headers = {
@@ -178,23 +178,23 @@ const ffetch = async <Data, ParsedResData = Data>(
     enhancedInit.headers['Authorization'] = `Basic ${btoa(extra.basicAuth.username + ":" + extra.basicAuth.password)}`
   }
 
-	const response = await fetch(url, enhancedInit)
+  const response = await fetch(url, enhancedInit)
 
   // ok is equal to `statusCode` in range 200-299`
-	if (!response.ok) throw new FErrorHTTPLayer(response)
+  if (!response.ok) throw new FErrorHTTPLayer(response)
 
-	const isResponseJson = response.headers.get('content-type')?.includes('application/json')
+  const isResponseJson = response.headers.get('content-type')?.includes('application/json')
 
-	// you can't parse response for two times, before each parsing call the `.clone()` method
-	const resToParse = response.clone()
-	const data = await (extra?.okResponseParser
-		? extra.okResponseParser(resToParse)
-		: isResponseJson
-		? resToParse.json()
-		: resToParse.text()
-	)
+  // you can't parse response for two times, before each parsing call the `.clone()` method
+  const resToParse = response.clone()
+  const data = await (extra?.okResponseParser
+    ? extra.okResponseParser(resToParse)
+    : isResponseJson
+    ? resToParse.json()
+    : resToParse.text()
+  )
 
-	return [data, response]
+  return [data, response]
 }
 
 ```

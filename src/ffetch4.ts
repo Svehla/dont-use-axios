@@ -1,8 +1,7 @@
 // ### 4. default support for POST body JSON content-type
 
 const ffetch = async (url, init, extra) => {
-
-	const enhancedInit = { ...init }
+  const enhancedInit = { ...init }
 
   if (extra?.jsonBody) {
     enhancedInit.headers = {
@@ -13,21 +12,25 @@ const ffetch = async (url, init, extra) => {
     enhancedInit.body = JSON.stringify(extra.jsonBody)
   }
 
-	const response = await fetch(url, enhancedInit)
+  const response = await fetch(url, enhancedInit)
 
-	return response
+  return response
 }
 
 // -------------------------------------------------------
 
 const example = async () => {
-  const x = await ffetch('https://api.chucknorris.io/jokes/random', { method: 'POST' }, {
-    jsonBody: {
-      a: {
-        b: 'c' 
-      }
+  const x = await ffetch(
+    'https://api.chucknorris.io/jokes/random',
+    { method: 'POST' },
+    {
+      jsonBody: {
+        a: {
+          b: 'c',
+        },
+      },
     }
-  })
+  )
   console.log(x.status === 405)
 }
 

@@ -1,4 +1,4 @@
-import { FFetchResponse } from "./shared"
+import { FFetchResponse } from './shared'
 
 export class FErrorHTTPLayer extends Error {
   type = 'FErrorHTTPLayer'
@@ -10,12 +10,14 @@ export class FErrorHTTPLayer extends Error {
   }
 }
 
-export const withHTTPErrsFetch = (localFetch: typeof fetch) => async <Data>(
-  url: Parameters<typeof fetch>[0],
-  init?: Parameters<typeof fetch>[1] | undefined,
-)=> {
-	const response = await localFetch(url, init) as FFetchResponse<Data>
-	
-	if (!response.ok) throw new FErrorHTTPLayer(response)
-	return response
-}
+export const withHTTPErrsFetch =
+  (localFetch: typeof fetch) =>
+  async <Data>(
+    url: Parameters<typeof fetch>[0],
+    init?: Parameters<typeof fetch>[1] | undefined
+  ) => {
+    const response = (await localFetch(url, init)) as FFetchResponse<Data>
+
+    if (!response.ok) throw new FErrorHTTPLayer(response)
+    return response
+  }

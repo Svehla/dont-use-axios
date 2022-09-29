@@ -11,11 +11,10 @@ class FErrorHTTPLayer extends Error {
 }
 
 const ffetch = async (url, init) => {
-	const response = await fetch(url, init)
-	if (!response.ok) throw new FErrorHTTPLayer(response)
-	return response
+  const response = await fetch(url, init)
+  if (!response.ok) throw new FErrorHTTPLayer(response)
+  return response
 }
-
 
 // -------------------------------------------------------
 
@@ -24,17 +23,16 @@ const example = async () => {
     const res = await ffetch('https://api.chucknorris.io/xxxxxx', {})
     const data = await res.json()
     console.log(data)
-  } catch(err: any) {
+  } catch (err: any) {
     console.error(err)
     if (err.type === 'FErrorHTTPLayer') {
       const e = err as FErrorHTTPLayer
       const reason = JSON.parse(await e.response.text())
-      console.info("Fetch error")
+      console.info('Fetch error')
       console.info(reason)
     }
   }
 }
-
 
 // -------------------------------------------------------
 
