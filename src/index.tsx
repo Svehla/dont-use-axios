@@ -5,7 +5,7 @@ import { example3 } from './ffetch3'
 import { example4 } from './ffetch4'
 import { example5 } from './ffetch5'
 import { example6 } from './ffetchReplaceAxios'
-import { megaExample } from './extra/all'
+import { megaExample } from './extra/index.spec'
 import React from 'react'
 
 // example1()

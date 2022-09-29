@@ -1,19 +1,9 @@
-import { withCacheFetch } from './enhanceFetchWithCache'
-import { withHTTPErrsFetch } from './enhanceFetchWithHTTPErrors'
-import { withTimeoutFetch } from './enhanceFetchWithTimeout'
+import { withCacheFetch } from './withCacheFetch'
+import { withHTTPErrsFetch } from './withHTTPErrsFetch'
+import { withTimeoutFetch } from './withTimeoutFetch'
 
 declare class FFetchResponse<T> extends Response {
   json(): Promise<T>
-}
-
-class FErrorHTTPLayer extends Error {
-  type = 'FErrorHTTPLayer'
-  response: Response
-
-  constructor(res: Response) {
-    super(`${res.status.toString()} ${res.url}`)
-    this.response = res
-  }
 }
 
 // fetch layers
@@ -59,12 +49,10 @@ const ffetch = async <Data, ParsedResData = Data>(
 
   const response = await superFetch3<Data>(url, enhancedInit)
 
-  // if (!response.ok) throw new FErrorHTTPLayer(response)
-
   const isResponseJson = response.headers.get('content-type')?.includes('application/json')
 
   // you can't parse response for two times, before each parsing call the `.clone()` method
-  const resToParse = response.clone()
+  const resToParse = response.clone() as FFetchResponse<Data>
   const data = (await (extra?.okResponseParser
     ? extra.okResponseParser(resToParse)
     : isResponseJson
@@ -78,29 +66,4 @@ const ffetch = async <Data, ParsedResData = Data>(
 // -------------------------------------------------------
 // -------------------------------------------------------
 
-type APIData = {
-  id: string
-  value: string
-}
-
-const doTheRequest = async (q = '') => {
-  const [data] = await ffetch<APIData>(`https://api.chucknorris.io/jokes/random?q=${q}`)
-  return data
-}
-
-const example = async () => {
-  const allData = await Promise.all([
-    doTheRequest(),
-    doTheRequest('a'),
-    doTheRequest('b'),
-    doTheRequest('b'),
-    doTheRequest('b'),
-    doTheRequest(),
-  ])
-  console.log(allData)
-}
-
-// -------------------------------------------------------
-
-export const ffetchCache = ffetch
-export const megaExample = example
+export const ffetchAll = ffetch
