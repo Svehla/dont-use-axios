@@ -1,64 +1,9 @@
-// ### Extra: 1. Add HTTP caching
-
-import stringify from 'fast-json-stable-stringify'
-import { addMilliseconds, differenceInMilliseconds } from 'date-fns'
+import { withCacheFetch } from "./enhanceFetchWithCache"
+import { withHTTPErrsFetch } from "./enhanceFetchWithHTTPErrors"
+import { withTimeoutFetch } from "./enhanceFetchWithTimeout"
 
 declare class FFetchResponse<T> extends Response {
   json(): Promise<T>
-}
-
-const _cache: Record<string, { cachedTime: Date; cachedPromisePointerRes: any }> = {}
-
-const HTTP_CACHE_VALIDATION_TIME_MS = 3000
-
-const isCacheValid = (cacheKey: string) => {
-  if (!_cache[cacheKey]) {
-    return false
-  }
-
-  const diff = differenceInMilliseconds(
-    addMilliseconds(_cache[cacheKey].cachedTime, HTTP_CACHE_VALIDATION_TIME_MS),
-    new Date()
-  )
-
-  return diff > 0
-}
-
-// fCacheFetch
-const fetchWithCache = async <Data>(
-  url: string,
-  init?: Parameters<typeof fetch>[1] | undefined,
-  extra?: {
-    useCache?: boolean
-    cacheTimeout?: number
-  }
-): Promise<FFetchResponse<Data>> => {
-  // turn on HTTP cache by default only for all GET Requests
-  const isGetRequest = (init?.method ?? 'GET').toLocaleLowerCase() === 'get'
-
-  const useCache = extra?.useCache === undefined && isGetRequest ? true : (extra?.useCache ?? false)
-
-  // redundant calculation of cache key for non-cached data
-  const cacheKey = stringify([url, init?.method, init?.body])
-
-  if (useCache && isCacheValid(cacheKey)) {
-    return (_cache[cacheKey].cachedPromisePointerRes as Promise<FFetchResponse<Data>>)
-    	// make clone only for the non-first request
-      // make uniq response clone for each user request
-      .then(r => r.clone())
-  }
-
-  const responsePromise: Promise<FFetchResponse<Data>> = fetch(url, init) 
-
-  if (useCache) {
-    _cache[cacheKey] = {
-      cachedTime: new Date(),
-      // save pointer to unresolved promise into local cache
-      cachedPromisePointerRes: responsePromise
-    }
-  }
-
-  return responsePromise
 }
 
 class FErrorHTTPLayer extends Error {
@@ -71,6 +16,14 @@ class FErrorHTTPLayer extends Error {
   }
 }
 
+// fetch layers
+//   - cache
+//   - timeout
+//   - response parsers
+//   - basic auth
+//   - request JSON params
+//   - throw error for `> 299` HTTP statuses
+
 const ffetch = async <Data, ParsedResData = Data>(
   url: string,
   init?: Parameters<typeof fetch>[1] | undefined,
@@ -80,9 +33,9 @@ const ffetch = async <Data, ParsedResData = Data>(
     basicAuth?: { username: string, password: string }
     useCache?: boolean
     cacheTimeout?: number
+		timeout?: number
 	}
 ) => {
-
 	const enhancedInit = { headers: {}, ...init }
 
   if (extra?.jsonBody) {
@@ -98,12 +51,13 @@ const ffetch = async <Data, ParsedResData = Data>(
     enhancedInit.headers['Authorization'] = `Basic ${btoa(extra.basicAuth.username + ":" + extra.basicAuth.password)}`
   }
 
-	const response = await fetchWithCache<Data>(url, enhancedInit, {
-    useCache: extra?.useCache,
-    cacheTimeout: extra?.cacheTimeout
-  })
+	const superFetch1 = withTimeoutFetch(window.fetch, extra)
+	const superFetch2 = withCacheFetch(superFetch1, extra)
+	const superFetch3 = withHTTPErrsFetch(superFetch2)
 
-	if (!response.ok) throw new FErrorHTTPLayer(response)
+	const response = await superFetch3<Data>(url, enhancedInit)
+
+	// if (!response.ok) throw new FErrorHTTPLayer(response)
 
 	const isResponseJson = response.headers.get('content-type')?.includes('application/json')
 
@@ -119,6 +73,8 @@ const ffetch = async <Data, ParsedResData = Data>(
 	return [data, response] as const
 }
 
+// -------------------------------------------------------
+// -------------------------------------------------------
 // -------------------------------------------------------
 
 type APIData = {
@@ -147,4 +103,4 @@ const example = async () => {
 // -------------------------------------------------------
 
 export const ffetchCache = ffetch
-export const exampleCache = example
+export const megaExample = example

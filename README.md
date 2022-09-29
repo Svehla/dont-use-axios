@@ -215,3 +215,6 @@ anddddd
 ## Extra
 
 Fetch is included in 18 as an axperimental API so it looks that we will not need to use node-fetch in the near future
+
+
+create service layer to have single source of true for your API requests
