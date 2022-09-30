@@ -1,4 +1,4 @@
-import { ffetchAll } from '.'
+import { ffetchMega } from '.'
 
 type APIData = {
   id: string
@@ -6,7 +6,7 @@ type APIData = {
 }
 
 const doTheRequest = async (q = '') => {
-  const [data] = await ffetchAll<APIData>(
+  const [data] = await ffetchMega<APIData>(
     `https://api.chucknorris.io/jokes/random?q=${q}`,
     {},
     { basicAuth: { username: 'xxx', password: 'yyy' } }

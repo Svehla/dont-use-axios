@@ -44,7 +44,7 @@ export const withCacheFetch =
     if (useCache && isCacheValid(cacheKey)) {
       // make clone only for the non-first request
       // make uniq response clone for each user request
-      return _cache[cacheKey].cachedPromisePointerRes.then(r => r.clone()) as Promise<
+      return (await _cache[cacheKey].cachedPromisePointerRes).clone() as Promise<
         FFetchResponse<Data>
       >
     }

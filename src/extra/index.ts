@@ -66,4 +66,4 @@ const ffetch = async <Data, ParsedResData = Data>(
 // -------------------------------------------------------
 // -------------------------------------------------------
 
-export const ffetchAll = ffetch
+export const ffetchMega = ffetch
