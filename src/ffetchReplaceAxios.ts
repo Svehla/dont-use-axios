@@ -22,7 +22,7 @@ const ffetch = async <Data, ParsedResData = Data>(
     jsonBody?: Record<any, any>
     basicAuth?: { username: string; password: string } //
   }
-): Promise<[Data, FFetchResponse<Data>]> => {
+) => {
   const enhancedInit = { headers: {}, ...init }
 
   if (extra?.jsonBody) {
@@ -49,13 +49,13 @@ const ffetch = async <Data, ParsedResData = Data>(
 
   // you can't parse response for two times, before each parsing call the `.clone()` method
   const resToParse = response.clone()
-  const data = await (extra?.okResponseParser
+  const data = (await (extra?.okResponseParser
     ? extra.okResponseParser(resToParse)
     : isResponseJson
     ? resToParse.json()
-    : resToParse.text())
+    : resToParse.text())) as ParsedResData
 
-  return [data, response]
+  return [data, response] as const
 }
 
 // -------------------------------------------------------

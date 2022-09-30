@@ -12,7 +12,7 @@ export const withBasicAuthFetch =
     url: Parameters<typeof fetch>[0],
     init?: Parameters<typeof fetch>[1] | undefined
   ) => {
-    console.log(2)
+    // TODO: is that working properly?
     const enhancedInit = { headers: {}, ...init }
 
     if (extra?.basicAuth) {
