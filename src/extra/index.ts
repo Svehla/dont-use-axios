@@ -137,7 +137,8 @@ import { addMilliseconds, differenceInMilliseconds } from 'date-fns'
 import stringify from 'fast-json-stable-stringify'
 
 const _cache: Record<string, { cachedTime: Date; cachedPromisePointerRes: any }> = {}
-
+// @ts-expect-error
+window.ccc = _cache
 const HTTP_CACHE_VALIDATION_TIME_MS = 3000
 
 const isCacheValid = (cacheKey: string) => {
