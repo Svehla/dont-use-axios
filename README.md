@@ -1,30 +1,28 @@
-j
-
 ## Don't use axios
 
-Full title should be: don't use axios and other redundnat libraries which use can reimplement in a few lines of code.
+The full title should be: don't use axios and other redundant libraries which use can reimplement in a few lines of code.
 
-If you're new JavaScript developer you can find out many tutorials how to fetch data from the browser.
-In a typical tutorial people uses axios to fetch backend data from the server.
-My question is, why don't the authors of the tutorials use `axios` and not the build in `fetch`
+If you're a new JavaScript developer you can find out many tutorials on how to fetch data from the browser.
+In a typical tutorial, people use axios to fetch backend data from the server.
+My question is, why don't the authors of the tutorials use `axios` and not the build-in `fetch`
 which is implemented in the browsers for a few years.
 
-I think that main sales point of axios are those nice stuffs which axios provide to us.
+I think that the main sales point of axios is the nice stuff which axios provide to us.
 
 1. better TS types to have typed response
-2. status > 299 throws new JS error
-3. easily get data from the response without usage of `await response.json()`
+2. status > 299 throws a new JS error
+3. easily get data from the response without the usage of `await response.json()`
 4. default support for POST body JSON content-type
 5. Basic auth
 
-Great respect for `axios` but I think that it's really simple to reimplement all of those stuffs in 2022.
+Great respect for `axios` but I think that it's really simple to reimplement all of those stuff in 2022.
 
 If you use this lightweight abstraction you'll not be locked by another vendor library and the complexity of
 your project will be lower.
 
-## Reimplement axios by your own
+## Reimplement axios on your own
 
-Let's overview feature by feature and try to reimplement it on top of `fetch` function
+Let's overview feature by feature and try to reimplement it on top of the `fetch` function
 
 ### 1. better TS types to have typed response
 
@@ -65,10 +63,10 @@ const ffetch = async (url, init) => {
 }
 ```
 
-### 3. easily get data from the response without usage of `await response.json()`
+### 3. easily get data from the response without the usage of `await response.json()`
 
-When you are using `fetch` I found out that you have to parse response by my own.
-So I think that it makes sense do a light abstraction will will parse the data by default and you don't care about the response
+When you are using `fetch` I found out that you have to parse the response by your own.
+So I think that it makes sense to do a light abstraction will parse the data by default and you don't care about the response
 you can just read the data like this
 
 ```ts
@@ -123,8 +121,8 @@ const ffetch = async (url, init, extra) => {
 
 ### 5. Basic auth
 
-One of features which you probably don't need but axios offers it is basic auth.
-It could look magic but let's have a look how hard is to implement custom basic auth
+One of features that you probably don't need but axios offers it is basic auth.
+It could look magic but let's have a look at how hard is to implement custom basic auth
 
 ```ts
 const ffetch = async (url, init, extra) => {
@@ -141,7 +139,7 @@ const ffetch = async (url, init, extra) => {
 
 ### Put all together:
 
-Now we can put all stuffs together and we'll get nice `ffetch` function with beautiful API and with 0 npm dependencies.
+Now we can put all stuff together and we'll get a nice `ffetch` function with beautiful API and with 0 npm dependencies.
 
 ```ts
 class FErrorHTTPLayer extends Error {
@@ -203,9 +201,9 @@ const ffetch = async <Data, ParsedResData = Data>(
 }
 ```
 
-And that's all what I found that `axios` could bring us.
-Nice stuff about this `ffetch` function is that if you need to implement something special for your app,
+And that's all that I found that `axios` could bring us.
+The nice stuff about this `ffetch` function is that if you need to implement something special for your app,
 it's up to you which layer of abstraction you're gonna use.
 
-I think that if you have option to replace a library with just a few dozen lines of code you should do it.
-You'll get simplified dependency tree of your project and you can reimplement it by your own with emphasis to your application use-case.
+I think that if you have the option to replace a library with just a few dozen lines of code you should do it.
+You'll get a simplified dependency tree of your project and you can reimplement it on your own with emphasis on your application use-case.
