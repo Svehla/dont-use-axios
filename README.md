@@ -137,6 +137,8 @@ const ffetch = async (url, init, extra) => {
 }
 ```
 
+### 6. Error handling
+
 ### Put all together:
 
 Now we can put all stuff together and we'll get a nice `ffetch` function with beautiful API and with 0 npm dependencies.
